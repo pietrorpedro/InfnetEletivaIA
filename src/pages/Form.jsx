@@ -1,20 +1,33 @@
 import { useState } from "react";
-import { mock } from "../exemples";
 
+import axios from "axios";
 import Markdown from "markdown-to-jsx";
 
 export default function Form() {
 
   const [inputText, setInputText] = useState("");
   const [output, setOutput] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-
-    setOutput(mock)
+  
+    setLoading(true);
+    
+    try {
+      const response = await axios.get(`LINK DA API/${inputText}`);
+      setOutput(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+    
     setInputText("");
   }
 
+
+  
   return (
     <main>
       <div className="max-w-md mx-auto">
@@ -31,20 +44,32 @@ export default function Form() {
               required
               onChange={(e) => setInputText(e.target.value)}
               value={inputText}
-            />
+              />
           </div>
           <button
             type="submit"
-            className="text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 text-center w-full md:w-1/2">
+            className="text-white bg-indigo-600 focus:outline-none focus:ring-4 font-medium rounded-full text-sm px-5 py-2.5 text-center w-full md:w-1/2">
             Criar Plano
           </button>
         </form>
       </div>
 
+
+      {loading && (
+        <div>
+          <h1>Carregando...</h1>
+        </div>
+      )}
+
       {output && (
-        <div className="max-w-sm mx-auto">
-          {/* TODO: Colocar uma margin entre os titulos e semanas */}
-          <Markdown>{output[0].response}</Markdown>
+        <div>
+          {output && (
+            <div className="max-w-sm mx-auto">
+              {/* TODO: Colocar uma margin entre os titulos e semanas */}
+              <Markdown>{output[0].response}</Markdown>
+            </div>
+          )}
+          
         </div>
       )}
     </main>
